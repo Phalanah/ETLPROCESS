@@ -1,0 +1,61 @@
+Resources:
+  LambdaRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: ETLLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::268264993521:policy/lambda_policy
+  DataLoadTrigger:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Runtime: python3.7
+      FunctionName: data_load_trigger
+      MemorySize: 128
+      Timeout: 1200
+      Code:
+        S3Bucket: data-codes12
+        S3Key: dataingest.zip
+      Role: !GetAtt
+        - LambdaRole
+        - Arn
+  s3_bucket:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Runtime: python3.7
+      FunctionName: s3_bucket
+      MemorySize: 128
+      Timeout: 300
+      Code:
+        S3Bucket: data-codes12
+        S3Key: s3.zip
+      Role: !GetAtt
+        - LambdaRole
+        - Arn
+
+  Dynamo_db:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Runtime: python3.7
+      FunctionName: dynamo_db
+      MemorySize: 128
+      Timeout: 600
+      Code:
+        S3Bucket: data-codes12
+        S3Key: lambda_function.zip
+      Role: !GetAtt
+        - LambdaRole
+        - Arn
+
